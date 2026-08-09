@@ -1,6 +1,6 @@
 {
   "name": "Con Ai — دستیار تولید محتوای شبکه های اجتماعی",
-  "short_name": "Con Ai",
+  "short_name": "Con.Ai",
   "description": "با یک توضیح کوتاه از ویدیو یا پروژه ات، برای اینستاگرام، یوتیوب شورتس، لینکدین، تردز، فیسبوک و آپارات کپشن و سناریو بگیر، به همراه پیشنهاد موزیک ترند.",
   "lang": "fa",
   "dir": "rtl",
@@ -13,9 +13,9 @@
   "categories": ["productivity", "business", "utilities"],
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/icon.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {

@@ -1,4 +1,5 @@
 import "./index.css";
+import { SwRegister } from "./SwRegister";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://con-ai-six.vercel.app/";
@@ -24,11 +25,16 @@ export const metadata = {
   ],
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png" },
       { url: "/favicon.png", sizes: "32x32", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Con.Ai",
   },
   openGraph: {
     type: "website",
@@ -66,7 +72,10 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <SwRegister />
+        {children}
+      </body>
     </html>
   );
 }
