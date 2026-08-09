@@ -1,0 +1,981 @@
+/* ==========================================================
+   Con Ai — Aurora Glass Design System (v2)
+   دیزاین سیستم اختصاصی: بدون هیچ فریمورک UI، همه چیز از همین جا
+   ----------------------------------------------------------
+   لایه ها:
+   1) توکن ها (رنگ، شیشه، گرادینت، شعاع، سایه، تایپوگرافی)
+   2) ریست و پایه
+   3) کامپوننت ها (topbar / hero / cards / chat / composer / modal)
+   4) انیمیشن ها و ریسپانسیو
+   ========================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap");
+
+/* ---------- 1) توکن ها ---------- */
+:root {
+  /* پس زمینه */
+  --bg-0: #07070c;
+  --bg-1: #0c0d14;
+
+  /* سطوح شیشه ای */
+  --glass: rgba(255, 255, 255, 0.045);
+  --glass-high: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-strong: rgba(255, 255, 255, 0.18);
+  --glass-blur: 22px;
+
+  /* متن */
+  --text-1: #f2f3f8;
+  --text-2: #a9aebe;
+  --text-3: #686e80;
+
+  /* رنگ های امضا */
+  --acc-blue: #6c9fff;
+  --acc-violet: #a78bfa;
+  --acc-pink: #f472b6;
+  --acc-cyan: #67e8f9;
+  --acc-warn: #fbd38d;
+  --acc-danger: #fb7185;
+
+  /* گرادینت امضای برند */
+  --grad-main: linear-gradient(120deg, #6c9fff 0%, #a78bfa 45%, #f472b6 100%);
+  --grad-main-soft: linear-gradient(120deg, rgba(108, 159, 255, 0.16), rgba(167, 139, 250, 0.16), rgba(244, 114, 182, 0.16));
+
+  /* شعاع ها */
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 30px;
+  --r-full: 999px;
+
+  /* سایه ها */
+  --shadow-1: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 18px 50px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 6px 26px rgba(108, 159, 255, 0.3);
+
+  /* تایپوگرافی */
+  --font: "Vazirmatn", system-ui, sans-serif;
+
+  /* حرکت */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------- 2) ریست و پایه ---------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+  background-color: var(--bg-0);
+  color: var(--text-1);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+input,
+textarea {
+  font-family: inherit;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--text-1);
+}
+
+::selection {
+  background: rgba(167, 139, 250, 0.35);
+}
+
+/* اسکرول بار مینیمال */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- شل اصلی اپ ---------- */
+.app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(108, 159, 255, 0.07), transparent 60%),
+    var(--bg-0);
+}
+
+/* ---------- پس زمینه ی Aurora ---------- */
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.aurora__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+.aurora__blob--1 {
+  width: min(58vw, 700px);
+  height: min(58vw, 700px);
+  top: -22%;
+  inset-inline-start: -14%;
+  background: radial-gradient(circle, rgba(108, 159, 255, 0.16), transparent 65%);
+  animation: drift1 22s ease-in-out infinite;
+}
+
+.aurora__blob--2 {
+  width: min(52vw, 620px);
+  height: min(52vw, 620px);
+  bottom: -26%;
+  inset-inline-end: -12%;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.14), transparent 65%);
+  animation: drift2 26s ease-in-out infinite;
+}
+
+.aurora__blob--3 {
+  width: min(38vw, 460px);
+  height: min(38vw, 460px);
+  top: 34%;
+  inset-inline-start: 42%;
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.08), transparent 65%);
+  animation: drift1 30s ease-in-out infinite reverse;
+}
+
+/* شبکه ی نقطه ای خیلی محو برای عمق دادن */
+.aurora__grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 75%);
+  opacity: 0.5;
+}
+
+/* ---------- متن گرادینتی امضا ---------- */
+.grad-text {
+  background: var(--grad-main);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradFlow 8s ease-in-out infinite alternate;
+}
+
+/* ---------- Topbar شیشه ای ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px clamp(16px, 4vw, 32px);
+  background: rgba(7, 7, 12, 0.55);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand__logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: var(--grad-main-soft);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.brand__name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.brand__tag {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+/* دکمه ی آیکونی عمومی */
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-sm);
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+  border: 1px solid transparent;
+  transition: all 0.22s var(--ease);
+}
+
+.icon-btn:hover {
+  background: var(--glass-high);
+  border-color: var(--glass-border);
+  color: var(--text-1);
+}
+
+.icon-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(108, 159, 255, 0.4);
+}
+
+.icon-btn--sm {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+/* ---------- ناحیه ی گفتگو ---------- */
+.chat {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  padding: 28px clamp(16px, 4vw, 32px) 16px;
+}
+
+.chat__inner {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+/* ---------- Hero (صفحه ی خالی) ---------- */
+.hero {
+  margin-top: clamp(6vh, 10vh, 14vh);
+  animation: fadeUp 0.7s var(--ease) both;
+}
+
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: var(--r-full);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 20px;
+}
+
+.hero__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--acc-cyan);
+  box-shadow: 0 0 10px var(--acc-cyan);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+.hero__title {
+  font-size: clamp(1.85rem, 5vw, 2.9rem);
+  font-weight: 800;
+  line-height: 1.45;
+  letter-spacing: -0.5px;
+}
+
+.hero__subtitle {
+  margin-top: 8px;
+  font-size: clamp(1rem, 2.6vw, 1.3rem);
+  font-weight: 400;
+  color: var(--text-2);
+  line-height: 1.9;
+}
+
+/* ---------- کارت های پیشنهادی ---------- */
+.sugg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 44px;
+}
+
+.sugg-card {
+  position: relative;
+  min-height: 138px;
+  padding: 18px;
+  border-radius: var(--r-md);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: start;
+  overflow: hidden;
+  transition: all 0.28s var(--ease);
+  animation: popIn 0.55s var(--ease) both;
+}
+
+/* خط گرادینتی بالای کارت که فقط موقع هاور روشن میشه */
+.sugg-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 2px;
+  background: var(--card-accent, var(--acc-blue));
+  opacity: 0;
+  transition: opacity 0.28s var(--ease);
+}
+
+.sugg-card:hover {
+  background: var(--glass-high);
+  border-color: var(--glass-border-strong);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-1);
+}
+
+.sugg-card:hover::before {
+  opacity: 1;
+}
+
+.sugg-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(108, 159, 255, 0.4);
+}
+
+.sugg-card__text {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.8;
+}
+
+.sugg-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  align-self: flex-end;
+  color: var(--card-accent, var(--acc-blue));
+  background: color-mix(in srgb, var(--card-accent, var(--acc-blue)) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--card-accent, var(--acc-blue)) 25%, transparent);
+}
+
+/* ---------- پیام ها ---------- */
+.msg-group {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  animation: fadeUp 0.45s var(--ease) both;
+}
+
+/* پیام کاربر: کارت شیشه ای جمع و جور، چسبیده به راست */
+.msg-user {
+  align-self: flex-start;
+  max-width: 88%;
+  display: flex;
+  gap: 12px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.avatar--user {
+  background: var(--glass-high);
+  border: 1px solid var(--glass-border);
+  color: var(--text-2);
+}
+
+.avatar--ai {
+  background: var(--grad-main-soft);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.msg-user__bubble {
+  padding: 14px 18px;
+  border-radius: 6px 20px 20px 20px;
+  background: var(--glass-high);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.msg-user__text {
+  font-size: 14.5px;
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* تگ های پلتفرم داخل پیام کاربر */
+.ptag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ptag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.ptag__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* پاسخ Ai: متن باز روی کارت شیشه ای خیلی لطیف */
+.msg-ai {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.msg-ai__body {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 20px 18px;
+  border-radius: 20px 6px 20px 20px;
+  background: var(--glass);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.msg-ai__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.msg-ai__label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.msg-ai__label--error {
+  color: var(--acc-danger);
+}
+
+.msg-ai__content {
+  font-size: 14.5px;
+  line-height: 2.05;
+}
+
+.out-line {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.out-line--header {
+  margin-top: 22px;
+  margin-bottom: 8px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-weight: 700;
+  color: var(--acc-blue);
+}
+
+.out-line--header:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.out-hashtag {
+  color: var(--acc-violet);
+  font-weight: 500;
+}
+
+/* نشانگر تایپ در حال استریم */
+.caret {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  border-radius: 3px;
+  background: var(--grad-main);
+  margin-inline-start: 6px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+
+/* خط های شیمر لودینگ */
+.shimmer {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 4px 0;
+}
+
+.shimmer__line {
+  height: 12px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(108, 159, 255, 0.1) 0%,
+    rgba(167, 139, 250, 0.34) 30%,
+    rgba(244, 114, 182, 0.18) 55%,
+    rgba(108, 159, 255, 0.1) 100%
+  );
+  background-size: 220% 100%;
+  animation: shimmerMove 1.7s ease-in-out infinite;
+}
+
+/* دکمه ی تلاش دوباره */
+.retry-btn {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: var(--r-full);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--acc-danger);
+  background: rgba(251, 113, 133, 0.1);
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  transition: all 0.22s var(--ease);
+}
+
+.retry-btn:hover {
+  background: rgba(251, 113, 133, 0.18);
+}
+
+/* ---------- Composer (نوار پایین) ---------- */
+.composer-zone {
+  position: relative;
+  z-index: 2;
+  padding: 10px clamp(16px, 4vw, 32px) calc(14px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--bg-0) 55%, transparent);
+}
+
+.composer-inner {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+/* چیپ های انتخاب پلتفرم */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--r-full);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-3);
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  transition: all 0.25s var(--ease);
+}
+
+.chip:hover {
+  background: var(--glass);
+  color: var(--text-2);
+  border-color: var(--glass-border-strong);
+}
+
+.chip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  opacity: 0.4;
+  transition: all 0.25s var(--ease);
+}
+
+.chip--active {
+  color: var(--text-1);
+  background: var(--glass-high);
+  border-color: var(--glass-border-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.chip--active .chip__dot {
+  opacity: 1;
+  box-shadow: 0 0 9px currentColor;
+}
+
+.chips__warn {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--acc-warn);
+}
+
+/* شل اینپوت با حلقه ی گرادینتی موقع فوکوس */
+.composer {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 9px 10px 9px 12px;
+  border-radius: var(--r-xl);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  transition: background 0.25s var(--ease);
+}
+
+.composer:focus-within {
+  background: var(--glass-high);
+}
+
+.composer::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(120deg, #6c9fff, #a78bfa, #f472b6, #a78bfa, #6c9fff);
+  background-size: 300% auto;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  animation: gradFlow 4s linear infinite alternate;
+  pointer-events: none;
+}
+
+.composer:focus-within::before {
+  opacity: 1;
+}
+
+.composer__input {
+  flex: 1;
+  resize: none;
+  font-size: 14.5px;
+  line-height: 1.9;
+  padding: 10px 8px;
+  max-height: 180px;
+  color: var(--text-1);
+}
+
+.composer__input::placeholder {
+  color: var(--text-3);
+}
+
+/* دکمه ی ارسال */
+.send-btn {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.28);
+  transition: all 0.25s var(--ease);
+}
+
+.send-btn--ready {
+  background: var(--grad-main);
+  color: #ffffff;
+  box-shadow: var(--shadow-glow);
+}
+
+.send-btn--ready:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.send-btn--stop {
+  background: rgba(251, 113, 133, 0.14);
+  color: var(--acc-danger);
+  border: 1px solid rgba(251, 113, 133, 0.3);
+}
+
+.send-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(108, 159, 255, 0.4);
+}
+
+.composer-credit {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.composer-credit b {
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+/* ---------- Modal شیشه ای ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 5, 10, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.25s ease both;
+}
+
+.modal {
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--r-lg);
+  background: rgba(18, 19, 28, 0.85);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  box-shadow: var(--shadow-2);
+  padding: 32px 28px 28px;
+  animation: popIn 0.35s var(--ease) both;
+}
+
+.modal__icon {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: var(--grad-main-soft);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  color: var(--acc-violet);
+}
+
+.modal__title {
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.modal__desc {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-2);
+  text-align: center;
+  line-height: 1.9;
+}
+
+.field {
+  margin-top: 18px;
+}
+
+.field__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 7px;
+}
+
+.field__input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  transition: all 0.22s var(--ease);
+}
+
+.field__input:hover {
+  border-color: var(--glass-border-strong);
+}
+
+.field__input:focus {
+  border-color: var(--acc-blue);
+  background: var(--glass-high);
+  box-shadow: 0 0 0 3px rgba(108, 159, 255, 0.18);
+}
+
+.field__input::placeholder {
+  color: var(--text-3);
+}
+
+.modal__cta {
+  width: 100%;
+  height: 50px;
+  margin-top: 26px;
+  border-radius: var(--r-md);
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--grad-main);
+  box-shadow: var(--shadow-glow);
+  transition: all 0.25s var(--ease);
+}
+
+.modal__cta:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.modal__cta:disabled {
+  background: var(--glass-high);
+  color: var(--text-3);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ---------- 4) انیمیشن ها ---------- */
+@keyframes gradFlow {
+  from { background-position: 0% center; }
+  to { background-position: 100% center; }
+}
+
+@keyframes shimmerMove {
+  0% { background-position: 120% 0; }
+  100% { background-position: -120% 0; }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@keyframes drift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.55; }
+  50% { transform: translate(-45px, 35px) scale(1.15); opacity: 0.85; }
+}
+
+@keyframes drift2 {
+  0%, 100% { transform: translate(0, 0) scale(1.1); opacity: 0.45; }
+  50% { transform: translate(55px, -30px) scale(0.95); opacity: 0.75; }
+}
+
+@keyframes sparkleSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.12); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.sparkle-thinking {
+  animation: sparkleSpin 1.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* ---------- ریسپانسیو ---------- */
+@media (max-width: 640px) {
+  .sugg-grid {
+    grid-template-columns: 1fr;
+    margin-top: 32px;
+  }
+
+  .sugg-card {
+    min-height: unset;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .sugg-card__icon {
+    align-self: center;
+  }
+
+  .composer__input {
+    font-size: 14px;
+  }
+
+  .brand__tag {
+    display: none;
+  }
+}
+
+/* کاهش حرکت برای کسایی که انیمیشن اذیتشون می کنه */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001s !important;
+    transition-duration: 0.001s !important;
+  }
+}
