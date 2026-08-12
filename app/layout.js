@@ -3,7 +3,7 @@ import { SwRegister } from "./SwRegister";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://con-ai-six.vercel.app/";
-const TITLE = "Con Ai — دستیار تولید محتوای شبکه های اجتماعی";
+const TITLE = "Con.Ai";
 const DESC =
   "با یک توضیح کوتاه از ویدیو یا پروژه ات، برای اینستاگرام، یوتیوب شورتس، لینکدین، تردز، فیسبوک و آپارات کپشن و سناریو بگیر، به همراه پیشنهاد موزیک ترند.";
 
