@@ -3,161 +3,69 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import "./index.css";
 
-const CREATOR_NAME = "Con Dev";
-const APP_NAME = "Con Ai";
-
+const CREATOR_NAME = "con.dev";
+const CREATOR_URL = "https://instagram.com/con.dev";
+const APP_NAME = "کپشن ساز";
 
 const MAX_INPUT = 600;
+const MAX_NICHE = 60;
 
-
-const LS_BRAND = "conai:brand";
-const LS_HANDLE = "conai:handle";
-const LS_PLATFORMS = "conai:platforms";
-const LS_THEME = "conai:theme";
-
+const LS_BRAND = "capgen:brand";
+const LS_HANDLE = "capgen:handle";
+const LS_NICHE = "capgen:niche";
+const LS_PLATFORMS = "capgen:platforms";
+const LS_THEME = "capgen:theme";
 
 const PlatformIcon = {
-  
   instagram: (p) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      {...p}
-    >
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.9" {...p}>
       <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
       <circle cx="12" cy="12" r="4" />
       <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
     </svg>
   ),
-  
   youtube: (p) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinejoin="round"
-      {...p}
-    >
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" {...p}>
       <rect x="2.5" y="5.5" width="19" height="13" rx="4" />
-      <path
-        d="M10.4 9.6 15 12l-4.6 2.4V9.6Z"
-        fill="currentColor"
-        stroke="none"
-      />
+      <path d="M10.4 9.6 15 12l-4.6 2.4V9.6Z" fill="currentColor" stroke="none" />
     </svg>
   ),
-  
   linkedin: (p) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      {...p}
-    >
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" {...p}>
       <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
       <path d="M8 11v6M8 7.9v.1" />
       <path d="M12.5 17v-3.4a2.1 2.1 0 0 1 4.2 0V17" />
     </svg>
   ),
-  
   threads: (p) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...p}
-    >
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" {...p}>
       <path d="M16.5 5.6A6.6 6.6 0 0 0 12 4c-4.2 0-7 3.2-7 8s2.8 8 7 8c3.4 0 5.6-1.9 5.6-4.3 0-2.2-1.8-3.6-4.4-3.6-1.9 0-3.2.9-3.2 2.2 0 1 .8 1.7 1.9 1.7 1.7 0 2.8-1.4 2.8-3.7 0-2.1-1.2-3.5-3.1-3.5" />
     </svg>
   ),
-  
   facebook: (p) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      {...p}
-    >
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" {...p}>
       <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
       <path d="M14.6 8.2h-1.2a1.8 1.8 0 0 0-1.8 1.8v7.5M10 12.4h4" />
     </svg>
   ),
-  
   aparat: (p) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinejoin="round"
-      {...p}
-    >
-      <path
-        d="M12 3.2c3 0 4.4-1 5.7.3s.3 2.7.3 5.7.9 4.4-.3 5.7c0 0-2.7.3-5.7.3s-4.4.9-5.7-.3-.3-2.7-.3-5.7-.9-4.4.3-5.7S9 3.2 12 3.2Z"
-        transform="translate(0 2)"
-      />
-      <path
-        d="M10.7 10.7 14.4 13l-3.7 2.3v-4.6Z"
-        fill="currentColor"
-        stroke="none"
-      />
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" {...p}>
+      <path d="M12 3.2c3 0 4.4-1 5.7.3s.3 2.7.3 5.7.9 4.4-.3 5.7c0 0-2.7.3-5.7.3s-4.4.9-5.7-.3-.3-2.7-.3-5.7-.9-4.4.3-5.7S9 3.2 12 3.2Z" transform="translate(0 2)" />
+      <path d="M10.7 10.7 14.4 13l-3.7 2.3v-4.6Z" fill="currentColor" stroke="none" />
     </svg>
   ),
 };
 
 const PLATFORMS = [
-  {
-    id: "instagram",
-    label: "اینستاگرام",
-    dot: "#f472b6",
-    Icon: PlatformIcon.instagram,
-  },
-  {
-    id: "youtube",
-    label: "یوتیوب",
-    dot: "#fb7185",
-    Icon: PlatformIcon.youtube,
-  },
-  {
-    id: "linkedin",
-    label: "لینکدین",
-    dot: "#6c9fff",
-    Icon: PlatformIcon.linkedin,
-  },
+  { id: "instagram", label: "اینستاگرام", dot: "#f472b6", Icon: PlatformIcon.instagram },
+  { id: "youtube", label: "یوتیوب", dot: "#fb7185", Icon: PlatformIcon.youtube },
+  { id: "linkedin", label: "لینکدین", dot: "#6c9fff", Icon: PlatformIcon.linkedin },
   { id: "threads", label: "تردز", dot: "#9ca3af", Icon: PlatformIcon.threads },
-  {
-    id: "facebook",
-    label: "فیسبوک",
-    dot: "#67a2ff",
-    Icon: PlatformIcon.facebook,
-  },
+  { id: "facebook", label: "فیسبوک", dot: "#67a2ff", Icon: PlatformIcon.facebook },
   { id: "aparat", label: "آپارات", dot: "#f45e8c", Icon: PlatformIcon.aparat },
 ];
 
 const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p]));
-
 
 const TITLE_HINTS = [
   { id: "instagram", keys: ["اینستاگرام", "instagram"] },
@@ -168,22 +76,10 @@ const TITLE_HINTS = [
   { id: "aparat", keys: ["آپارات", "aparat"] },
 ];
 
-
 const Icon = {
   spark: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      aria-hidden="true"
-      {...props}
-      style={{ marginTop: "-2.6px", marginRight: "-.6px;" }}
-    >
-      <path
-        d="M12 2.5c.4 3.9 1.6 6.3 3.3 8s4.1 2.9 8 3.3v.4c-3.9.4-6.3 1.6-8 3.3s-2.9 4.1-3.3 8h-.4c-.4-3.9-1.6-6.3-3.3-8s-4.1-2.9-8-3.3v-.4c3.9-.4 6.3-1.6 8-3.3s2.9-4.1 3.3-8h.4Z"
-        fill="url(#sparkGrad)"
-      />
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true" {...props} style={{ marginTop: "-2.6px", marginRight: "-.6px" }}>
+      <path d="M12 2.5c.4 3.9 1.6 6.3 3.3 8s4.1 2.9 8 3.3v.4c-3.9.4-6.3 1.6-8 3.3s-2.9 4.1-3.3 8h-.4c-.4-3.9-1.6-6.3-3.3-8s-4.1-2.9-8-3.3v-.4c3.9-.4 6.3-1.6 8-3.3s2.9-4.1 3.3-8h.4Z" fill="url(#sparkGrad)" />
       <defs>
         <linearGradient id="sparkGrad" x1="2" y1="2" x2="22" y2="22">
           <stop offset="0" stopColor="#6c9fff" />
@@ -194,275 +90,101 @@ const Icon = {
     </svg>
   ),
   send: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <path d="M4.4 11.5 20 4.5l-7 15.6-2.3-6.3-6.3-2.3Z" />
       <path d="M10.7 13.8 20 4.5" />
     </svg>
   ),
   stop: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="currentColor"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" {...props}>
       <rect x="6" y="6" width="12" height="12" rx="3" />
     </svg>
   ),
   tune: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="19"
-      height="19"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" {...props}>
       <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
       <circle cx="15" cy="7" r="2.4" />
       <circle cx="9" cy="17" r="2.4" />
     </svg>
   ),
   copy: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <rect x="9" y="9" width="11" height="11" rx="2.5" />
       <path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15" />
     </svg>
   ),
   check: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <path d="m5 12.5 4.5 4.5L19 7.5" />
     </svg>
   ),
   retry: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="15"
-      height="15"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <path d="M20 11a8 8 0 1 0-2.3 6.3" />
       <path d="M20 5v6h-6" />
     </svg>
   ),
   warn: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7.5v5.5M12 16.5h.01" />
     </svg>
   ),
   info: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <circle cx="12" cy="12" r="9" />
       <path d="M12 16.5V11M12 7.6h.01" />
     </svg>
   ),
   user: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="17"
-      height="17"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" {...props}>
       <circle cx="12" cy="8.5" r="3.6" />
       <path d="M4.8 19.4c1.6-3 4.2-4.5 7.2-4.5s5.6 1.5 7.2 4.5" />
     </svg>
   ),
   megaphone: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <path d="M4 10v4a1.5 1.5 0 0 0 1.5 1.5H8l8 4.5v-16L8 8.5H5.5A1.5 1.5 0 0 0 4 10Z" />
       <path d="M19 10.5a3 3 0 0 1 0 3" />
     </svg>
   ),
   clapper: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <rect x="3.5" y="8.5" width="17" height="11" rx="2" />
       <path d="m4 8.5 2.2-4 4 1-2.2 4M12 6.5l4-1 2.2 4" />
     </svg>
   ),
   bulb: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <path d="M9.5 18.5h5M10 21h4M12 3.5a6 6 0 0 0-3.5 10.9c.8.6 1.3 1.2 1.5 2.1h4c.2-.9.7-1.5 1.5-2.1A6 6 0 0 0 12 3.5Z" />
     </svg>
   ),
   plus: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="17"
-      height="17"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" {...props}>
       <path d="M12 5.5v13M5.5 12h13" />
     </svg>
   ),
   close: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="17"
-      height="17"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" {...props}>
       <path d="m6.5 6.5 11 11M17.5 6.5l-11 11" />
     </svg>
   ),
   sun: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" {...props}>
       <circle cx="12" cy="12" r="4" />
       <path d="M12 2.8v2.1M12 19.1v2.1M4.5 4.5l1.5 1.5M18 18l1.5 1.5M2.8 12h2.1M19.1 12h2.1M4.5 19.5 6 18M18 6l1.5-1.5" />
     </svg>
   ),
   moon: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
       <path d="M20 14.2A8.4 8.4 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z" />
     </svg>
   ),
 };
 
-
 function EmptyArt() {
   return (
-    <svg
-      className="hero__art"
-      viewBox="0 0 160 160"
-      fill="none"
-      role="img"
-      aria-label="نشان انتزاعی Con Ai"
-    >
+    <svg className="hero__art" viewBox="0 0 160 160" fill="none" role="img" aria-label="نشان انتزاعی برنامه">
       <defs>
         <linearGradient id="artA" x1="20" y1="18" x2="140" y2="146">
           <stop offset="0" stopColor="#6c9fff" />
@@ -474,36 +196,10 @@ function EmptyArt() {
           <stop offset="1" stopColor="#6c9fff" stopOpacity="0.2" />
         </linearGradient>
       </defs>
-      {}
-      <circle
-        cx="80"
-        cy="80"
-        r="62"
-        stroke="url(#artB)"
-        strokeWidth="1.5"
-        strokeDasharray="3 9"
-        opacity="0.75"
-      />
-      {}
-      <path
-        d="M28 96c14-46 52-64 104-52"
-        stroke="url(#artA)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        opacity="0.9"
-      />
-      <path
-        d="M132 66c-14 46-52 64-104 52"
-        stroke="url(#artA)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        opacity="0.45"
-      />
-      {}
-      <path
-        d="M80 55c2.6 18.4 7.4 23.2 26 26-18.6 2.8-23.4 7.6-26 26-2.6-18.4-7.4-23.2-26-26 18.6-2.8 23.4-7.6 26-26Z"
-        fill="url(#artA)"
-      />
+      <circle cx="80" cy="80" r="62" stroke="url(#artB)" strokeWidth="1.5" strokeDasharray="3 9" opacity="0.75" />
+      <path d="M28 96c14-46 52-64 104-52" stroke="url(#artA)" strokeWidth="3" strokeLinecap="round" opacity="0.9" />
+      <path d="M132 66c-14 46-52 64-104 52" stroke="url(#artA)" strokeWidth="3" strokeLinecap="round" opacity="0.45" />
+      <path d="M80 55c2.6 18.4 7.4 23.2 26 26-18.6 2.8-23.4 7.6-26 26-2.6-18.4-7.4-23.2-26-26 18.6-2.8 23.4-7.6 26-26Z" fill="url(#artA)" />
       <circle cx="126" cy="42" r="4" fill="#f472b6" opacity="0.85" />
       <circle cx="36" cy="118" r="3" fill="#6c9fff" opacity="0.8" />
     </svg>
@@ -520,18 +216,11 @@ function ShimmerLines() {
   return (
     <div className="shimmer" aria-hidden="true">
       <div className="shimmer__line" style={{ width: "92%" }} />
-      <div
-        className="shimmer__line"
-        style={{ width: "76%", animationDelay: "0.15s" }}
-      />
-      <div
-        className="shimmer__line"
-        style={{ width: "55%", animationDelay: "0.3s" }}
-      />
+      <div className="shimmer__line" style={{ width: "76%", animationDelay: "0.15s" }} />
+      <div className="shimmer__line" style={{ width: "55%", animationDelay: "0.3s" }} />
     </div>
   );
 }
-
 
 function BootSkeleton() {
   return (
@@ -547,7 +236,6 @@ function BootSkeleton() {
     </div>
   );
 }
-
 
 function parseBlocks(text) {
   const lines = text.split("\n");
@@ -566,7 +254,6 @@ function parseBlocks(text) {
     } else if (current) {
       current.lines.push(line);
     } else {
-      
       if (!blocks.length || blocks[0].title !== null) {
         blocks.unshift({ title: null, lines: [] });
       }
@@ -577,16 +264,12 @@ function parseBlocks(text) {
   return blocks;
 }
 
-
 function guessPlatform(title) {
   if (!title) return null;
   const t = title.toLowerCase();
-  const hit = TITLE_HINTS.find((h) =>
-    h.keys.some((k) => t.includes(k.toLowerCase())),
-  );
+  const hit = TITLE_HINTS.find((h) => h.keys.some((k) => t.includes(k.toLowerCase())));
   return hit ? PLATFORM_MAP[hit.id] : null;
 }
-
 
 function renderLines(lines) {
   return lines.map((line, i) => {
@@ -600,14 +283,13 @@ function renderLines(lines) {
             </span>
           ) : (
             <span key={j}>{p}</span>
-          ),
+          )
         )}
         {line === "" && <br />}
       </div>
     );
   });
 }
-
 
 function ToastLayer({ toasts, onAction }) {
   return (
@@ -620,13 +302,7 @@ function ToastLayer({ toasts, onAction }) {
           aria-live={t.kind === "error" ? "assertive" : "polite"}
         >
           <span className="toast__icon">
-            {t.kind === "error" ? (
-              <Icon.warn width="16" height="16" />
-            ) : t.kind === "success" ? (
-              <Icon.check />
-            ) : (
-              <Icon.info />
-            )}
+            {t.kind === "error" ? <Icon.warn width="16" height="16" /> : t.kind === "success" ? <Icon.check /> : <Icon.info />}
           </span>
           <span className="toast__text">{t.text}</span>
           {t.actionLabel && (
@@ -643,6 +319,7 @@ function ToastLayer({ toasts, onAction }) {
 export default function Home() {
   const [brand, setBrand] = useState("");
   const [handle, setHandle] = useState("");
+  const [niche, setNiche] = useState("");
   const [selected, setSelected] = useState(["instagram"]);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
@@ -662,42 +339,37 @@ export default function Home() {
   const lastFocusRef = useRef(null);
   const toastTimers = useRef(new Map());
 
-  
   useEffect(() => {
     try {
       const b = localStorage.getItem(LS_BRAND);
       const h = localStorage.getItem(LS_HANDLE);
+      const n = localStorage.getItem(LS_NICHE);
       const p = localStorage.getItem(LS_PLATFORMS);
       const t = localStorage.getItem(LS_THEME);
       if (b) setBrand(b);
       if (h) setHandle(h);
+      if (n) setNiche(n);
       if (p) {
         const parsed = JSON.parse(p);
-        const valid = Array.isArray(parsed)
-          ? parsed.filter((x) => PLATFORM_MAP[x])
-          : [];
+        const valid = Array.isArray(parsed) ? parsed.filter((x) => PLATFORM_MAP[x]) : [];
         if (valid.length) setSelected(valid);
       }
       if (t === "light" || t === "dark") setTheme(t);
-      else if (window.matchMedia?.("(prefers-color-scheme: light)").matches)
-        setTheme("light");
-    } catch {
-      
-    }
+      else if (window.matchMedia?.("(prefers-color-scheme: light)").matches) setTheme("light");
+    } catch {}
     setHydrated(true);
   }, []);
 
-  
   useEffect(() => {
     if (!hydrated) return;
     try {
       localStorage.setItem(LS_BRAND, brand);
       localStorage.setItem(LS_HANDLE, handle);
+      localStorage.setItem(LS_NICHE, niche);
       localStorage.setItem(LS_PLATFORMS, JSON.stringify(selected));
     } catch {}
-  }, [brand, handle, selected, hydrated]);
+  }, [brand, handle, niche, selected, hydrated]);
 
-  
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     if (!hydrated) return;
@@ -706,11 +378,8 @@ export default function Home() {
     } catch {}
   }, [theme, hydrated]);
 
-  
   const dismissToast = useCallback((id) => {
-    setToasts((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, leaving: true } : t)),
-    );
+    setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, leaving: true } : t)));
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 260);
   }, []);
 
@@ -722,7 +391,7 @@ export default function Home() {
       toastTimers.current.set(id, timer);
       return id;
     },
-    [dismissToast],
+    [dismissToast]
   );
 
   useEffect(() => {
@@ -730,13 +399,11 @@ export default function Home() {
     return () => timers.forEach((t) => clearTimeout(t));
   }, []);
 
-  
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => {
-      nearBottomRef.current =
-        el.scrollHeight - el.scrollTop - el.clientHeight < 140;
+      nearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 140;
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
@@ -751,20 +418,16 @@ export default function Home() {
     }
   }, [messages]);
 
-  
   const autoGrow = (el) => {
     el.style.height = "auto";
     el.style.height = Math.min(el.scrollHeight, 180) + "px";
   };
 
   const togglePlatform = (id) =>
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
-    );
+    setSelected((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
 
   const ready = input.trim() && selected.length > 0 && !loading;
 
-  
   const runCompletion = async (id, topic, platforms) => {
     setLoading(true);
     const controller = new AbortController();
@@ -777,6 +440,7 @@ export default function Home() {
         body: JSON.stringify({
           brand: brand.trim(),
           handle: handle.trim() || brand.trim(),
+          niche: niche.trim(),
           topic,
           platforms,
           creator: CREATOR_NAME,
@@ -790,32 +454,17 @@ export default function Home() {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value);
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === id ? { ...m, output: m.output + chunk } : m,
-          ),
-        );
+        setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, output: m.output + chunk } : m)));
       }
     } catch (err) {
       if (err?.name === "AbortError") {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === id ? { ...m, output: m.output || "متوقف شد." } : m,
-          ),
-        );
+        setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, output: m.output || "متوقف شد." } : m)));
       } else {
         setMessages((prev) =>
           prev.map((m) =>
-            m.id === id
-              ? {
-                  ...m,
-                  output: m.output || "یه مشکلی پیش اومد.",
-                  error: !m.output,
-                }
-              : m,
-          ),
+            m.id === id ? { ...m, output: m.output || "یه مشکلی پیش اومد.", error: !m.output } : m
+          )
         );
-        
         pushToast("ارتباط با سرور برقرار نشد. اینترنت رو چک کن.", "error", {
           actionLabel: "تلاش دوباره",
           retry: { id, topic, platforms },
@@ -825,18 +474,13 @@ export default function Home() {
     } finally {
       setLoading(false);
       abortRef.current = null;
-      setMessages((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, streaming: false } : m)),
-      );
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, streaming: false } : m)));
     }
   };
 
   const startMessage = (topic, platforms) => {
     const id = Date.now();
-    setMessages((prev) => [
-      ...prev,
-      { id, topic, platforms, output: "", streaming: true, error: false },
-    ]);
+    setMessages((prev) => [...prev, { id, topic, platforms, output: "", streaming: true, error: false }]);
     runCompletion(id, topic, platforms);
     requestAnimationFrame(() => inputRef.current?.focus());
   };
@@ -872,14 +516,11 @@ export default function Home() {
 
   const retryMessage = (m) => {
     setMessages((prev) =>
-      prev.map((x) =>
-        x.id === m.id ? { ...x, output: "", streaming: true, error: false } : x,
-      ),
+      prev.map((x) => (x.id === m.id ? { ...x, output: "", streaming: true, error: false } : x))
     );
     runCompletion(m.id, m.topic, m.platforms);
   };
 
-  
   const newChat = () => {
     if (loading) abortRef.current?.abort();
     setMessages([]);
@@ -900,7 +541,6 @@ export default function Home() {
     }
   };
 
-  
   const copyText = useCallback(
     async (key, text) => {
       try {
@@ -923,10 +563,9 @@ export default function Home() {
         pushToast("کپی نشد، دستی انتخاب کن.", "error");
       }
     },
-    [pushToast],
+    [pushToast]
   );
 
-  
   const openSettings = () => {
     lastFocusRef.current = document.activeElement;
     setSettingsOpen(true);
@@ -935,7 +574,6 @@ export default function Home() {
   const closeSettings = useCallback(() => {
     setSettingsOpen(false);
     setPending(null);
-    
     requestAnimationFrame(() => lastFocusRef.current?.focus?.());
   }, []);
 
@@ -945,12 +583,9 @@ export default function Home() {
     const node = modalRef.current;
     const focusables = () =>
       Array.from(
-        node?.querySelectorAll(
-          'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
+        node?.querySelectorAll('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []
       ).filter((el) => el.offsetParent !== null);
 
-    
     requestAnimationFrame(() => {
       const list = focusables();
       (list.find((el) => el.tagName === "INPUT") ?? list[0])?.focus();
@@ -963,7 +598,7 @@ export default function Home() {
         return;
       }
       if (e.key !== "Tab") return;
-      
+
       const list = focusables();
       if (list.length === 0) return;
       const first = list[0];
@@ -981,7 +616,6 @@ export default function Home() {
     return () => document.removeEventListener("keydown", onKey);
   }, [settingsOpen, closeSettings]);
 
-  
   const newChatRef = useRef(newChat);
   newChatRef.current = newChat;
 
@@ -1001,9 +635,7 @@ export default function Home() {
     if (t.retry) {
       const { id, topic, platforms } = t.retry;
       setMessages((prev) =>
-        prev.map((x) =>
-          x.id === id ? { ...x, output: "", streaming: true, error: false } : x,
-        ),
+        prev.map((x) => (x.id === id ? { ...x, output: "", streaming: true, error: false } : x))
       );
       runCompletion(id, topic, platforms);
     }
@@ -1018,7 +650,6 @@ export default function Home() {
 
   return (
     <div className="app" dir="rtl">
-      {}
       <div className="aurora" aria-hidden="true">
         <div className="aurora__grid" />
         <div className="aurora__blob aurora__blob--1" />
@@ -1026,7 +657,6 @@ export default function Home() {
         <div className="aurora__blob aurora__blob--3" />
       </div>
 
-      {}
       <header className="topbar">
         <div className="topbar__inner">
           <div className="brand">
@@ -1035,9 +665,7 @@ export default function Home() {
             </div>
             <div>
               <div className="brand__name">{APP_NAME}</div>
-              <div className="brand__tag">
-                دستیار تولید محتوای شبکه های اجتماعی
-              </div>
+              <div className="brand__tag">دستیار تولید محتوای شبکه های اجتماعی</div>
             </div>
           </div>
 
@@ -1058,9 +686,7 @@ export default function Home() {
             <button
               className="icon-btn"
               onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-              aria-label={
-                theme === "dark" ? "تغییر به تم روشن" : "تغییر به تم تیره"
-              }
+              aria-label={theme === "dark" ? "تغییر به تم روشن" : "تغییر به تم تیره"}
               title={theme === "dark" ? "تم روشن" : "تم تیره"}
               aria-pressed={theme === "light"}
             >
@@ -1080,10 +706,8 @@ export default function Home() {
         </div>
       </header>
 
-      {}
       <main className="chat" ref={scrollRef}>
         <div className="chat__inner">
-          {}
           {!hydrated && messages.length === 0 && <BootSkeleton />}
 
           {hydrated && messages.length === 0 && (
@@ -1093,22 +717,15 @@ export default function Home() {
                 <span className="hero__badge-dot" />
                 سریع و دقیق
               </div>
-              <h1 className="hero__title grad-text">
-                سلام، چه محتوایی بسازیم؟
-              </h1>
-              <p className="hero__subtitle">
-                پلتفرم رو انتخاب کن، موضوع رو بگو، بقیش با من.
-              </p>
+              <h1 className="hero__title grad-text">سلام، چه محتوایی بسازیم؟</h1>
+              <p className="hero__subtitle">پلتفرم رو انتخاب کن، موضوع رو بگو، بقیش با من.</p>
 
               <div className="sugg-grid">
                 {SUGGESTIONS.map((s, i) => (
                   <button
                     key={s.text}
                     className="sugg-card"
-                    style={{
-                      "--card-accent": s.accent,
-                      animationDelay: `${i * 0.09}s`,
-                    }}
+                    style={{ "--card-accent": s.accent, animationDelay: `${i * 0.09}s` }}
                     onClick={() => handleSend(s.text)}
                   >
                     <span className="sugg-card__text">{s.text}</span>
@@ -1125,7 +742,6 @@ export default function Home() {
             const blocks = m.output ? parseBlocks(m.output) : [];
             return (
               <div className="msg-group" key={m.id}>
-                {}
                 <div className="msg-user">
                   <div className="avatar avatar--user" aria-hidden="true">
                     <Icon.user />
@@ -1139,10 +755,7 @@ export default function Home() {
                           const P = p.Icon;
                           return (
                             <span className="ptag" key={pid}>
-                              <span
-                                className="ptag__icon"
-                                style={{ "--ptag-color": p.dot, color: p.dot }}
-                              >
+                              <span className="ptag__icon" style={{ "--ptag-color": p.dot, color: p.dot }}>
                                 <P />
                               </span>
                               {p.label}
@@ -1155,29 +768,15 @@ export default function Home() {
                   </div>
                 </div>
 
-                {}
                 <div className="msg-ai">
                   <div className="avatar avatar--ai" aria-hidden="true">
-                    <span
-                      className={
-                        m.streaming && !m.output
-                          ? "sparkle-thinking"
-                          : undefined
-                      }
-                      style={{ display: "grid" }}
-                    >
+                    <span className={m.streaming && !m.output ? "sparkle-thinking" : undefined} style={{ display: "grid" }}>
                       <Icon.spark />
                     </span>
                   </div>
                   <div className="msg-ai__body">
                     <div className="msg-ai__head">
-                      <span
-                        className={
-                          m.error
-                            ? "msg-ai__label msg-ai__label--error"
-                            : "msg-ai__label"
-                        }
-                      >
+                      <span className={m.error ? "msg-ai__label msg-ai__label--error" : "msg-ai__label"}>
                         {m.error && <Icon.warn />}
                         {m.error ? "مشکلی پیش اومد" : "سناریو و کپشن"}
                       </span>
@@ -1187,94 +786,57 @@ export default function Home() {
                           onClick={() => copyText(m.id, m.output)}
                           aria-label="کپی کردن کل پاسخ"
                           title={copiedId === m.id ? "کپی شد" : "کپی کل پاسخ"}
-                          style={
-                            copiedId === m.id
-                              ? { color: "var(--acc-cyan)" }
-                              : undefined
-                          }
+                          style={copiedId === m.id ? { color: "var(--acc-cyan)" } : undefined}
                         >
                           {copiedId === m.id ? <Icon.check /> : <Icon.copy />}
                         </button>
                       )}
                     </div>
 
-                    <div
-                      className="msg-ai__content"
-                      aria-live={m.streaming ? "polite" : "off"}
-                      aria-busy={m.streaming || undefined}
-                    >
+                    <div className="msg-ai__content" aria-live={m.streaming ? "polite" : "off"} aria-busy={m.streaming || undefined}>
                       {m.output ? (
                         blocks.map((b, bi) => {
                           const plat = guessPlatform(b.title);
                           const P = plat?.Icon;
                           const blockKey = `${m.id}-b${bi}`;
-                          const blockText = [b.title, ...b.lines]
-                            .filter(Boolean)
-                            .join("\n")
-                            .trim();
+                          const blockText = [b.title, ...b.lines].filter(Boolean).join("\n").trim();
                           return (
                             <section className="out-block" key={blockKey}>
                               {b.title && (
                                 <div className="out-block__head">
                                   <h3 className="out-block__title">
                                     {P && (
-                                      <span
-                                        className="out-block__title-icon"
-                                        style={{ color: plat.dot }}
-                                        aria-hidden="true"
-                                      >
+                                      <span className="out-block__title-icon" style={{ color: plat.dot }} aria-hidden="true">
                                         <P width="15" height="15" />
                                       </span>
                                     )}
                                     {b.title}
                                   </h3>
-                                  {}
                                   {!m.streaming && (
                                     <button
                                       className="icon-btn icon-btn--sm out-block__copy"
-                                      onClick={() =>
-                                        copyText(blockKey, blockText)
-                                      }
+                                      onClick={() => copyText(blockKey, blockText)}
                                       aria-label={`کپی کردن بخش ${b.title}`}
-                                      title={
-                                        copiedId === blockKey
-                                          ? "کپی شد"
-                                          : "کپی این بخش"
-                                      }
-                                      style={
-                                        copiedId === blockKey
-                                          ? { color: "var(--acc-cyan)" }
-                                          : undefined
-                                      }
+                                      title={copiedId === blockKey ? "کپی شد" : "کپی این بخش"}
+                                      style={copiedId === blockKey ? { color: "var(--acc-cyan)" } : undefined}
                                     >
-                                      {copiedId === blockKey ? (
-                                        <Icon.check />
-                                      ) : (
-                                        <Icon.copy />
-                                      )}
+                                      {copiedId === blockKey ? <Icon.check /> : <Icon.copy />}
                                     </button>
                                   )}
                                 </div>
                               )}
-                              <div className="out-block__body">
-                                {renderLines(b.lines)}
-                              </div>
+                              <div className="out-block__body">{renderLines(b.lines)}</div>
                             </section>
                           );
                         })
                       ) : (
                         <ShimmerLines />
                       )}
-                      {m.streaming && m.output && (
-                        <span className="caret" aria-hidden="true" />
-                      )}
+                      {m.streaming && m.output && <span className="caret" aria-hidden="true" />}
                     </div>
 
                     {m.error && !m.streaming && (
-                      <button
-                        className="retry-btn"
-                        onClick={() => retryMessage(m)}
-                      >
+                      <button className="retry-btn" onClick={() => retryMessage(m)}>
                         <Icon.retry />
                         امتحان دوباره
                       </button>
@@ -1287,15 +849,10 @@ export default function Home() {
         </div>
       </main>
 
-      {}
       <footer className="composer-zone">
         <div className="composer-inner">
           <div className="chips-rail">
-            <div
-              className="chips"
-              role="group"
-              aria-label="انتخاب پلتفرم های خروجی"
-            >
+            <div className="chips" role="group" aria-label="انتخاب پلتفرم های خروجی">
               {PLATFORMS.map((p) => {
                 const active = selected.includes(p.id);
                 const P = p.Icon;
@@ -1307,10 +864,7 @@ export default function Home() {
                     aria-pressed={active}
                     aria-label={`${p.label}${active ? " (انتخاب شده)" : ""}`}
                   >
-                    <span
-                      className="chip__icon"
-                      style={{ "--chip-color": p.dot, color: p.dot }}
-                    >
+                    <span className="chip__icon" style={{ "--chip-color": p.dot, color: p.dot }}>
                       <P />
                     </span>
                     {p.label}
@@ -1340,55 +894,40 @@ export default function Home() {
                   autoGrow(e.target);
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="اینجا از Con Ai بپرس..."
+                placeholder="موضوع کار و لینکش رو بنویس..."
                 aria-label="متن پیام"
                 aria-describedby="composer-counter"
               />
               <div className="composer__meta">
-                <span className="composer__hint">
-                  Enter برای ارسال، Shift + Enter خط جدید
-                </span>
-                <span
-                  id="composer-counter"
-                  className={counterClass}
-                  aria-live="polite"
-                >
+                <span className="composer__hint">Enter برای ارسال، Shift + Enter خط جدید</span>
+                <span id="composer-counter" className={counterClass} aria-live="polite">
                   {input.length} / {MAX_INPUT}
                 </span>
               </div>
             </div>
 
             <button
-              className={
-                loading
-                  ? "send-btn send-btn--stop"
-                  : ready
-                    ? "send-btn send-btn--ready"
-                    : "send-btn"
-              }
+              className={loading ? "send-btn send-btn--stop" : ready ? "send-btn send-btn--ready" : "send-btn"}
               onClick={loading ? stopGenerating : () => handleSend()}
               disabled={!loading && !ready}
               aria-label={loading ? "توقف تولید" : "ارسال پیام"}
               title={loading ? "توقف تولید" : "ارسال پیام"}
             >
-              {loading ? (
-                <Icon.stop />
-              ) : (
-                <Icon.send style={{ transform: "scaleX(-1)" }} />
-              )}
+              {loading ? <Icon.stop /> : <Icon.send style={{ transform: "scaleX(-1)" }} />}
             </button>
           </div>
 
           <span className="composer-credit">
-            ساخته شده با ❤ توسط <b>{CREATOR_NAME}</b>
+            ساخته شده با ❤ توسط{" "}
+            <a href={CREATOR_URL} target="_blank" rel="noopener noreferrer">
+              <b>{CREATOR_NAME}</b>
+            </a>
           </span>
         </div>
       </footer>
 
-      {}
       <ToastLayer toasts={toasts} onAction={onToastAction} />
 
-      {}
       {settingsOpen && (
         <div
           className="modal-overlay"
@@ -1396,20 +935,8 @@ export default function Home() {
             if (e.target === e.currentTarget) closeSettings();
           }}
         >
-          <div
-            className="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="settings-title"
-            aria-describedby="settings-desc"
-            ref={modalRef}
-          >
-            <button
-              className="icon-btn icon-btn--sm modal__close"
-              onClick={closeSettings}
-              aria-label="بستن تنظیمات"
-              title="بستن (Esc)"
-            >
+          <div className="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" aria-describedby="settings-desc" ref={modalRef}>
+            <button className="icon-btn icon-btn--sm modal__close" onClick={closeSettings} aria-label="بستن تنظیمات" title="بستن (Esc)">
               <Icon.close />
             </button>
 
@@ -1420,8 +947,7 @@ export default function Home() {
               تنظیمات برند
             </h2>
             <p className="modal__desc" id="settings-desc">
-              این اطلاعات رو تو همه ی محتواها استفاده می کنیم و روی همین دستگاه
-              ذخیره می مونه.
+              این اطلاعات رو تو همه ی محتواها استفاده می کنیم و روی همین دستگاه ذخیره می مونه.
             </p>
 
             <div className="field">
@@ -1439,7 +965,7 @@ export default function Home() {
                     confirmBrand();
                   }
                 }}
-                placeholder="مثلا Con Dev"
+                placeholder="نام برند شما"
                 autoComplete="organization"
               />
             </div>
@@ -1459,7 +985,7 @@ export default function Home() {
                     confirmBrand();
                   }
                 }}
-                placeholder="con.dev"
+                placeholder="your.handle"
                 dir="ltr"
                 autoComplete="off"
                 aria-describedby="handle-help"
@@ -1469,11 +995,32 @@ export default function Home() {
               </span>
             </div>
 
-            <button
-              className="modal__cta"
-              onClick={confirmBrand}
-              disabled={!brand.trim()}
-            >
+            <div className="field">
+              <label className="field__label" htmlFor="niche-input">
+                حوزه کاری
+              </label>
+              <input
+                id="niche-input"
+                className="field__input"
+                value={niche}
+                maxLength={MAX_NICHE}
+                onChange={(e) => setNiche(e.target.value.slice(0, MAX_NICHE))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    confirmBrand();
+                  }
+                }}
+                placeholder="مثلا برنامه نویس فرانت اند، صاحب قنادی، عکاس"
+                autoComplete="off"
+                aria-describedby="niche-help"
+              />
+              <span className="field__help" id="niche-help">
+                لحن و اصطلاحات متن ها بر اساس همین تنظیم می شه.
+              </span>
+            </div>
+
+            <button className="modal__cta" onClick={confirmBrand} disabled={!brand.trim()}>
               {pending ? "تایید و ادامه" : "ذخیره"}
             </button>
           </div>
